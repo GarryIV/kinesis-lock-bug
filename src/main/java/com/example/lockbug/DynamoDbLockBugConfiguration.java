@@ -41,14 +41,17 @@ public class DynamoDbLockBugConfiguration {
 	}
 
 	@Bean
-	public CommandLineRunner runner(AmazonDynamoDB amazonDynamoDb) {
+	public DynamoDbLockRegistry dynamoDbLockRegistry(AmazonDynamoDB amazonDynamoDb) {
+		var lockClientOptions = dynamoDBLockClientOptionsBuilder(amazonDynamoDb).build();
+		return new DynamoDbLockRegistry(new AmazonDynamoDBLockClient(lockClientOptions));
+	}
+
+	@Bean
+	public CommandLineRunner runner(AmazonDynamoDB amazonDynamoDb, DynamoDbLockRegistry dynamoDbLockRegistry) {
 		return args -> {
 			createAbandonedLock(amazonDynamoDb);
 
-			var lockClientOptions = dynamoDBLockClientOptionsBuilder(amazonDynamoDb).build();
-			var dynamoDbLockRegistry = new DynamoDbLockRegistry(new AmazonDynamoDBLockClient(lockClientOptions));
 			logger.info("Trying to acquire the abandoned lock");
-
 			var lock = dynamoDbLockRegistry.obtain(PARTITION_KEY);
 			while (!lock.tryLock()) {
 				logger.info("Failed to lock");
@@ -62,7 +65,7 @@ public class DynamoDbLockBugConfiguration {
 
 	private void createAbandonedLock(AmazonDynamoDB amazonDynamoDb) throws InterruptedException {
 		var options = dynamoDBLockClientOptionsBuilder(amazonDynamoDb)
-				// do not update lock to allow another registry acquire it after lease duration
+				// do not update lock to allow another registry acquire it
 				.withCreateHeartbeatBackgroundThread(false)
 				.build();
 
