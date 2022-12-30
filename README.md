@@ -2,7 +2,7 @@ Kinesis / DynamoDB lock bug demo
 ---
 
 This app reproduces a case when you have an abandoned lock in a DynamoDB table 
-and trying to use `DynamoDbLockRegistry.tryLock()` to acquire it.
+and trying to use `DynamoDbLock.tryLock()` to acquire it.
 
 To reproduce it run
 ```
