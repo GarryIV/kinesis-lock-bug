@@ -66,3 +66,5 @@ com.amazonaws.services.dynamodbv2.model.LockCurrentlyUnavailableException: The l
 
 ```
 * stop local stack and the application
+
+NB: It also possible to reproduce the same with real AWS resources, just remove `local-stack` profile to do so.
