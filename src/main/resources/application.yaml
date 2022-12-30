@@ -1,0 +1,19 @@
+spring:
+
+  profiles:
+    active: dynamo-db,local-stack
+  cloud:
+    stream:
+      function:
+        definition: myConsumer
+      bindings:
+        myConsumer-in-0:
+          destination: kinesis-lock-bug
+          contentType: application/octet-stream
+          binder: kinesis
+          group: "kinesis-lock-bug"
+
+logging:
+  level:
+    org.springframework.integration.aws: TRACE
+    com.amazonaws.services.dynamodbv2: TRACE
